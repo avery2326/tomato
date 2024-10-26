@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Cat Game</title>
+    <style>
+        body { margin: 0; overflow: hidden; }
+        #chat { position: absolute; top: 10px; left: 10px; background: rgba(255, 255, 255, 0.8); padding: 10px; }
+    </style>
+</head>
+<body>
+    <div id="chat">Controls: W (forward), S (back), A (left), D (right), K (attack), Space (jump)</div>
+    <script src="https://threejs.org/build/three.min.js"></script>
+    <script src="https://threejs.org/examples/js/controls/PointerLockControls.js"></script>
+    <script>
+        let scene, camera, renderer, controls, cat;
+        const enemies = [];
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            controls = new THREE.PointerLockControls(camera, document.body);
+            scene.add(controls.getObject());
+
+            const geometry = new THREE.BoxGeometry(1, 1, 1);
+            const material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+            cat = new THREE.Mesh(geometry, material);
+            scene.add(cat);
+
+            camera.position.z = 5;
+
+            // Lighting
+            const light = new THREE.AmbientLight(0x404040);
+            scene.add(light);
+
+            // Floor
+            const floorGeometry = new THREE.PlaneGeometry(500, 500);
+            const floorMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, side: THREE.DoubleSide });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = Math.PI / 2;
+            scene.add(floor);
+
+            animate();
+            setupControls();
+        }
+
+        function setupControls() {
+            document.addEventListener('keydown', onKeyDown);
+            document.addEventListener('keyup', onKeyUp);
+        }
+
+        function onKeyDown(event) {
+            switch (event.code) {
+                case 'KeyW':
+                    cat.position.z -= 0.1;
+                    break;
+                case 'KeyS':
+                    cat.position.z += 0.1;
+                    break;
+                case 'KeyA':
+                    cat.position.x -= 0.1;
+                    break;
+                case 'KeyD':
+                    cat.position.x += 0.1;
+                    break;
+                case 'Space':
+                    cat.position.y += 1; // Simple jump
+                    setTimeout(() => cat.position.y -= 1, 300); // Gravity
+                    break;
+                case 'KeyK':
+                    console.log("Attack!");
+                    break;
+            }
+        }
+
+        function onKeyUp(event) {
+            // Handle key releases if needed
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+
+        init();
+    </script>
+</body>
+</html>
